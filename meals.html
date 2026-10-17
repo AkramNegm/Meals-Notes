@@ -1,87 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Meals Calculator</title>
+    <title>Meals Note</title>
     <style>
         .container {
             width: 76%;
             margin: 0 auto;
-            padding: 17px;
-            background: darkblue;
-            color: white; 
+            padding: 20px;
+            background: red;
+            color: blue; 
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px; 
+        }
+        .col {
+            width: 48%; 
+        }
+        .col p {
+            margin: 0 0 5px 0; 
+        }
+        .col input, .col select {
+            width: 100%; 
+            padding: 5px;
+            box-sizing: border-box;
         }
         button {
-            margin-top: 25px;
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            margin-bottom: 25px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-
   <div class="container">
-      <h1>My Meals</h1>
-      
-      <p>Food Name:</p>
-      <input type="text" id="foodItem">
-      
-      <p>Protein (grams):</p>
-      <input type="number" id="protVal">
-      
-      <p>Carbs (grams):</p>
-      <input type="number" id="carbVal">
-      
+      <h1>Meals Note</h1>
+      <div class="row">
+          <div class="col">
+              <p>Date:</p>
+              <input type="date" id="mealDate">
+          </div>
+          <div class="col">
+              <p>Meal Type:</p>
+              <select id="mealType">
+                  <option value="Breakfast">Breakfast</option>
+                  <option value="Lunch">Lunch</option>
+                  <option value="Dinner">Dinner</option>
+                  <option value="Snack">Snack</option>
+              </select>
+          </div>
+      </div>
+      <div class="row">
+          <div class="col">
+              <p>Food Name:</p>
+              <input type="text" id="foodItem">
+          </div>
+          <div class="col">
+              <p>Description / Notes:</p>
+              <input type="text" id="mealDesc">
+          </div>
+      </div>
+      <div class="row">
+          <div class="col">
+              <p>Protein (grams):</p>
+              <input type="number" id="protVal">
+          </div>
+          <div class="col">
+              <p>Carbs (grams):</p>
+              <input type="number" id="carbVal">
+          </div>
+      </div>
+      <div class="row">
+          <div class="col">
+              <p>Fats (grams):</p>
+              <input type="number" id="fatVal">
+          </div>
+          <div class="col">
+          </div>
+      </div>
       <button id="addMealBtn">Add Meal</button>
-
       <p id="totalP">Total Protein: <b>0</b></p>
       <p id="totalC">Total Carbs: <b>0</b></p>
-
+      <p id="totalF">Total Fats: <b>0</b></p>
+      <p id="totalCal">Total Calories: <b>0</b></p>
       <ul id="mealsList"></ul>
   </div>
-
   <script>
       //بناخد input من اي حد استخدم البرنامج
+      let dateBox = document.querySelector("#mealDate");
+      let typeBox = document.querySelector("#mealType");
       let foodBox = document.querySelector("#foodItem");
+      let descBox = document.querySelector("#mealDesc");
       let pBox = document.querySelector("#protVal");
       let cBox = document.querySelector("#carbVal");
+      let fBox = document.querySelector("#fatVal");
       let theButton = document.querySelector("#addMealBtn");
-      
       let showTotalP = document.querySelector("#totalP");
       let showTotalC = document.querySelector("#totalC");
+      let showTotalF = document.querySelector("#totalF");
+      let showTotalCal = document.querySelector("#totalCal");
       let myUl = document.querySelector("#mealsList");
-
       let currentProt = 0;
       let currentCarb = 0;
-
+      let currentFat = 0;
+      let currentCal = 0;
       theButton.addEventListener("click", function() {
           console.log("button clicked"); // testing 
-          
-          let theFood = foodBox.value;
+          let theDate = dateBox.value;
+          let theType = typeBox.value;
+          let theFood = foodBox.value.trim();
+          let theDesc = descBox.value;
           let pGrams = Number(pBox.value);
           let cGrams = Number(cBox.value);
-
+          let fGrams = Number(fBox.value);
           //ناكد انه كاتب اي كلام المهم يبقي كلام مش ارقام
-          if (theFood == "") {
-              alert("Hey, you forgot to type the food name!");
+          if (theFood == "" || theDate == "") {
+              alert("Hey, you forgot to type the food name or date!");
           } 
-          // بناكد انه كتب اي ارقام مش سابها فاضيه
-          else if (pBox.value == "" || cBox.value == "") {
-              alert("Please enter the grams, or put 0 if there are none.");
+          // بناكد انه كتب ارقام مش سابها فاضيه او سالب او رقم خيالي
+          else if (pBox.value == "" || cBox.value == "" || fBox.value == "" || pGrams < 0 || cGrams < 0 || fGrams < 0 || pGrams > 10000 || cGrams > 10000 || fGrams > 10000) {
+              alert("Please enter a valid amount of grams (between 0 and 10,000).");
           } 
           else {
               // نسيف القيمه بتعت كل واحد من المدخلات 
-              currentProt=currentProt + pGrams;
-              currentCarb = currentCarb+cGrams;
-
+              currentProt = Math.round((currentProt + pGrams) * 100) / 100;
+              currentCarb = Math.round((currentCarb + cGrams) * 100) / 100;
+              currentFat = Math.round((currentFat + fGrams) * 100) / 100;
+              // بنحسب الحسبه بتعت الكالوريز كلها
+              currentCal = Math.round(((currentProt * 4) + (currentCarb * 4) + (currentFat * 9)) * 100) / 100;
               showTotalP.innerHTML = "Total Protein: <b>" + currentProt + "</b>";
               showTotalC.innerHTML = "Total Carbs: <b>" + currentCarb + "</b>";
-
+              showTotalF.innerHTML = "Total Fats: <b>" + currentFat + "</b>";
+              showTotalCal.innerHTML = "Total Calories: <b>" + currentCal + "</b>";
               // بتعرض كل المدخلات مع شويه اضفات من عندي 
-              let newListItem = "<li>" + theFood + " - Prot: " + pGrams + "g, Carbs: " + cGrams + "g</li>";
+              let newListItem = "<li>[" + theDate + "] <b>" + theType + "</b>: " + theFood + " <i>(" + theDesc + ")</i> - Prot: " + pGrams + "g, Carbs: " + cGrams + "g, Fats: " + fGrams + "g</li>";
               myUl.innerHTML = myUl.innerHTML + newListItem;
-
               // علشان يعرف يستخدم الكود تاني او ينهي 
+              dateBox.value = "";
               foodBox.value = "";
+              descBox.value = "";
               pBox.value = "";
               cBox.value = "";
+              fBox.value = "";
           }
       });
   </script>
